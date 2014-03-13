@@ -31,8 +31,6 @@ class MultiNova(client.MultiClient):
         """
         Returns python client object authenticated with multistack config.
         """
-        assert self.is_valid_environment(), 'Environment %s not found in ' \
-                                            'configuration.' % self.client_env
         username, api_key, project_id, kwargs = self.prep_python_creds()
         return novaclient.Client(version, username, api_key, project_id,
                                  **kwargs)
