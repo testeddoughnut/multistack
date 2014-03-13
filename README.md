@@ -1,4 +1,4 @@
-# MutiStack
+# MultiStack
 ### Easy authentication for multiple OpenStack environments
 Made by M. David Bennett
 
