@@ -27,7 +27,7 @@ You will also need to ensure that you have the clients that you're wanting Multi
 
 For MultiStack to work properly, each environment must be defined in `~/.multistack` (a file in your user's home directory).  The data in the file is exactly the same as the environment variables which you would normally use when running the stand-alone client for your service. Global configuration that should be passed to all of the clients should began with 'OS_', while specific configuration that should be read only for a specific client should began with the client's name (so 'NOVA_', for example).
 
-Here's an example of how to use MultiStack with the [Rackspace Cloud](http://www.rackspace.com/cloud/servers/) in different datacenters (credit for this goes to http://blog.chmouel.com/2013/09/27/how-to-access-rackspace-cloud-with-latest-swiftclient-novaclient/):
+Here's an example of how to use MultiStack with the [Rackspace Cloud](http://www.rackspace.com/cloud/servers/) in different datacenters (credit for this goes [here](http://blog.chmouel.com/2013/09/27/how-to-access-rackspace-cloud-with-latest-swiftclient-novaclient/)):
 
     [iad]
     OS_AUTH_URL=https://identity.api.rackspacecloud.com/v2.0/
