@@ -4,7 +4,7 @@ Made by M. David Bennett
 
 ### What is MultiStack?
 
-MultiStack is a rewrite of (supernova)[https://github.com/major/supernova] which was originally created by (Major Hayden)[https://github.com/major]. The goal of MultiStack is to provide the same convenience that supernova offers for all the various OpenStack clients. This is done by having a single base of code that can be reused for different clients by just changing a few variables. The different clients can authenticate using a common base of stored credentials through a flat-file or keyring.
+MultiStack is a rewrite of [supernova](https://github.com/major/supernova) which was originally created by [Major Hayden](https://github.com/major). The goal of MultiStack is to provide the same convenience that supernova offers for all the various OpenStack clients. This is done by having a single base of code that can be reused for different clients by just changing a few variables. The different clients can authenticate using a common base of stored credentials through a flat-file or keyring.
 
 
 ### Migrating from supernova
