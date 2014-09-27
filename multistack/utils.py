@@ -15,6 +15,7 @@
 #   limitations under the License.
 #
 
+from __future__ import print_function
 
 import sys
 import argparse
@@ -29,14 +30,16 @@ class _ListAction(argparse._HelpAction):
         super(argparse._HelpAction, self).__init__(
             option_strings=option_strings, dest=dest, default=default, nargs=0,
             help=help)
-        self.client_config = client_config
+        self.environments = {}
+        for environment in client_config.sections():
+            self.environments[environment] = client_config.items(environment)
 
     def __call__(self, parser, *args, **kwargs):
-        for env, config in self.client_config.iteritems():
+        for env, config in self.environments.items():
             envheader = '-- %s ' % gwrap(env)
-            print envheader.ljust(86, '-')
+            print(envheader.ljust(86, '-'))
             for param, value in sorted(config):
-                print '  %s: %s' % (param.upper().ljust(21), value)
+                print('  %s: %s' % (param.upper().ljust(21), value))
         parser.exit()
 
 
@@ -57,7 +60,7 @@ def rwrap(some_string):
 def print_error(error, title=None, exit=True):
     if not title:
         title = "Something broke"
-    print "[%s] %s" % (rwrap(title), error)
+    print("[%s] %s" % (rwrap(title), error))
     if exit:
         sys.exit(1)
 
@@ -65,4 +68,4 @@ def print_error(error, title=None, exit=True):
 def print_notice(msg, title=None):
     if not title:
         title = "Notice"
-    print "[%s] %s" % (gwrap(title), msg)
+    print("[%s] %s" % (gwrap(title), msg))
