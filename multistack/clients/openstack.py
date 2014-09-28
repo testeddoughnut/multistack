@@ -15,18 +15,20 @@
 #   limitations under the License.
 #
 
+from __future__ import absolute_import
 
-from multistack import client
-from multistack import shell
+from ..client import MultiClient
+from ..shell import MultiShell
 
 
-class MultiOpenstack(client.MultiClient):
+class MultiOpenstack(MultiClient):
 
-    def __init__(self, client_config):
-        super(MultiOpenstack, self).__init__(client_config)
+    def __init__(self):
+        super(MultiOpenstack, self).__init__()
+        self.default_executable = 'openstack'
         self.prefix_list += ["openstack_", "openstackclient_"]
 
 
 def main_client():
-    multistack_shell = shell.MultiShell('openstack', MultiOpenstack)
+    multistack_shell = MultiShell(MultiOpenstack)
     multistack_shell.run_client()

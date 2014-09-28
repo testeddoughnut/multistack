@@ -15,18 +15,20 @@
 #   limitations under the License.
 #
 
+from __future__ import absolute_import
 
-from multistack import client
-from multistack import shell
+from ..client import MultiClient
+from ..shell import MultiShell
 
 
-class MultiSwift(client.MultiClient):
+class MultiSwift(MultiClient):
 
-    def __init__(self, client_config):
-        super(MultiSwift, self).__init__(client_config)
+    def __init__(self):
+        super(MultiSwift, self).__init__()
+        self.default_executable = 'swift'
         self.prefix_list += ["swift_", "swiftclient_"]
 
 
 def main_client():
-    multistack_shell = shell.MultiShell('swift', MultiSwift)
+    multistack_shell = MultiShell(MultiSwift)
     multistack_shell.run_client()

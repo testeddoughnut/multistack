@@ -15,8 +15,7 @@
 #   limitations under the License.
 #
 """
-Takes care of the basic setup of the config files and does some preliminary
-sanity checks
+Takes care of the basic setup of the config files
 """
 try:
     import ConfigParser
@@ -37,3 +36,9 @@ def load_multistack_config():
     multistack_config = ConfigParser.RawConfigParser()
     multistack_config.read(possible_configs)
     return multistack_config
+
+def is_env_group(client_config, env):
+    return client_config.has_option(env, 'MULTISTACK_GROUP')
+
+def get_group_members(client_config, env):
+    return client_config.get(env, 'MULTISTACK_GROUP').split(',')

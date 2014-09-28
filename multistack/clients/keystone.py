@@ -15,18 +15,20 @@
 #   limitations under the License.
 #
 
+from __future__ import absolute_import
 
-from multistack import client
-from multistack import shell
+from ..client import MultiClient
+from ..shell import MultiShell
 
 
-class MultiKeystone(client.MultiClient):
+class MultiKeystone(MultiClient):
 
-    def __init__(self, client_config):
-        super(MultiKeystone, self).__init__(client_config)
+    def __init__(self):
+        super(MultiKeystone, self).__init__()
+        self.default_executable = 'keystone'
         self.prefix_list += ["keystone_", "keystoneclient_"]
 
 
 def main_client():
-    multistack_shell = shell.MultiShell('keystone', MultiKeystone)
+    multistack_shell = MultiShell(MultiKeystone)
     multistack_shell.run_client()

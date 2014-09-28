@@ -15,18 +15,20 @@
 #   limitations under the License.
 #
 
+from __future__ import absolute_import
 
-from multistack import client
-from multistack import shell
+from ..client import MultiClient
+from ..shell import MultiShell
 
 
-class MultiGlance(client.MultiClient):
+class MultiGlance(MultiClient):
 
-    def __init__(self, client_config):
-        super(MultiGlance, self).__init__(client_config)
+    def __init__(self):
+        super(MultiGlance, self).__init__()
+        self.default_executable = 'glance'
         self.prefix_list += ["glance_", "glanceclient_"]
 
 
 def main_client():
-    multistack_shell = shell.MultiShell('glance', MultiGlance)
+    multistack_shell = MultiShell(MultiGlance)
     multistack_shell.run_client()

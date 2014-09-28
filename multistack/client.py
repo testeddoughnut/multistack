@@ -15,27 +15,30 @@
 #   limitations under the License.
 #
 
+from __future__ import absolute_import
 
 import os
 import re
 import subprocess
 import sys
-
+from . import config
 from . import credentials
+from . import utils
 
 class MultiClient(object):
 
-    def __init__(self, client_config):
-        self.client_config = client_config
+    def __init__(self):
+        self.client_config = config.load_multistack_config()
+        self.available_envs = sorted(self.client_config.sections())
         self._client_env = None
-        self.env_config = None
-        self.env = os.environ.copy()
-        self.prefix_list = ["os_"]
+        self.run_config = []
+        self.default_executable = None
+        self.prefix_list = ['os_', 'multistack_']
 
     @property
     def client_env(self):
         """
-        Sets the client's environment to the provided entry.
+        Returns the client's current environment.
         """
         return self._client_env
 
@@ -44,10 +47,36 @@ class MultiClient(object):
         """
         Sets the client's environment to the provided entry.
         """
-        self.env_config = self.client_config.items(new_env)
+        new_run_config = []
+        if new_env not in self.available_envs:
+            msg = ('Environment \'%s\' is not in the multistack configuration '
+                     'file' % new_env)
+            raise AttributeError(msg)
+        if config.is_env_group(self.client_config, new_env):
+            group_members = config.get_group_members(self.client_config,
+                                                     new_env)
+            # Check that the members actually exist and that they aren't groups
+            # themselves.
+            for member in group_members:
+                if member not in self.available_envs:
+                    msg = ('Group member \'%s\' is not in the multistack '
+                           'configuration file' % member)
+                    raise AttributeError(msg)
+                if config.is_env_group(self.client_config, member):
+                    msg = ('Group member \'%s\' is itself a group. Nested '
+                           'groups are unsupported at this time.' % member)
+                    raise AttributeError(msg)
+                env_config = self.get_env_config(member)
+                executable = self.get_executable(env_config)
+                new_run_config.append([member, executable, env_config])
+        else:
+            env_config = self.get_env_config(new_env)
+            executable = self.get_executable(env_config)
+            new_run_config.append([new_env, executable, env_config])
+        self.run_config = new_run_config
         self._client_env = new_env
 
-    def prep_creds(self):
+    def prep_creds(self, env):
         """
         Finds relevant config options in the multistack config and cleans them
         up for the client.
@@ -55,7 +84,7 @@ class MultiClient(object):
         client_re = re.compile(r"(^%s)" % "|^".join(self.prefix_list))
 
         creds = []
-        for param, value in self.env_config:
+        for param, value in self.client_config.items(env):
 
             # Skip parameters we're unfamiliar with
             if not client_re.match(param):
@@ -67,51 +96,66 @@ class MultiClient(object):
             if value.startswith("USE_KEYRING"):
                 rex = "USE_KEYRING\[([\x27\x22])(.*)\\1\]"
                 if value == "USE_KEYRING":
-                    username = "%s:%s" % (self.client_env, param)
+                    credential = credentials.password_get(env, param)
                 else:
-                    global_identifier = re.match(rex, value).group(2)
-                    username = "%s:%s" % ('global', global_identifier)
-                credential = credentials.password_get(username, param)
+                    global_id = re.match(rex, value).group(2)
+                    credential = credentials.password_get('global', global_id)
             else:
                 credential = value.strip("\"'")
 
             # Make sure we got something valid from the configuration file or
             # the keyring
             if not credential:
-                msg = "Attempted to retrieve a credential for %s but " \
+                msg = "Attempted to retrieve a credential for \'%s\' but " \
                       "couldn't find it within the keyring." % username
-                raise Exception(msg)
+                raise AttributeError(msg)
 
             creds.append((param, credential))
 
         return creds
 
-    def prep_shell_environment(self):
+    def get_env_config(self, env):
         """
         Appends new variables to the current shell environment temporarily.
         """
-        for k, v in self.prep_creds():
-            self.env[k] = v
+        env_config = os.environ.copy()
+        # env_config = {}
+        for k, v in self.prep_creds(env):
+            env_config[k] = v
+        return env_config
+
+    def get_executable(self, env_config):
+        if env_config.get('MULTISTACK_%s_EXECUTABLE' %
+                          self.default_executable.upper()):
+            executable = env_config['MULTISTACK_%s_EXECUTABLE' %
+                                  self.default_executable.upper()]
+        else:
+            executable = self.default_executable
+        return executable
 
     def run_client(self, client_args, multistack_args):
         """
         Sets the environment variables for the client, runs the client, and
         prints the output.
         """
-        # Get the environment variables ready
-        self.prep_shell_environment()
-
         # Check for a debug override
         if multistack_args.debug:
             client_args.insert(0, '--debug')
-
-        p = subprocess.Popen([multistack_args.executable] + client_args,
-                             stdout=sys.stdout, stderr=sys.stderr,
-                             env=self.env)
-        # Don't exit until we're sure the subprocess has exited
-        p.wait()
-        # Return the return code of the process
-        return p.returncode
+        for env, executable, env_config in self.run_config:
+            # set the executable
+            if multistack_args.executable:
+                run_executable = multistack_args.executable
+            else:
+                run_executable = executable
+            utils.print_notice("Running %s against %s..." % (
+                               run_executable, env))
+            process = subprocess.Popen([run_executable] + client_args,
+                                 stdout=sys.stdout, stderr=sys.stderr,
+                                 env=env_config)
+            # Don't exit until we're sure the subprocess has exited
+            process.wait()
+            # Return the return code of the process
+        return process.returncode
 
     def get_client(self, env):
         """

@@ -15,18 +15,20 @@
 #   limitations under the License.
 #
 
+from __future__ import absolute_import
 
-from multistack import client
-from multistack import shell
+from ..client import MultiClient
+from ..shell import MultiShell
 
 
-class MultiCeilometer(client.MultiClient):
+class MultiCeilometer(MultiClient):
 
-    def __init__(self, client_config):
-        super(MultiCeilometer, self).__init__(client_config)
+    def __init__(self):
+        super(MultiCeilometer, self).__init__()
+        self.default_executable = 'ceilometer'
         self.prefix_list += ["ceilometer_", "ceilometerclient_"]
 
 
 def main_client():
-    multistack_shell = shell.MultiShell('ceilometer', MultiCeilometer)
+    multistack_shell = MultiShell(MultiCeilometer)
     multistack_shell.run_client()

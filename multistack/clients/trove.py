@@ -15,18 +15,20 @@
 #   limitations under the License.
 #
 
+from __future__ import absolute_import
 
-from multistack import client
-from multistack import shell
+from ..client import MultiClient
+from ..shell import MultiShell
 
 
-class MultiTrove(client.MultiClient):
+class MultiTrove(MultiClient):
 
-    def __init__(self, client_config):
-        super(MultiTrove, self).__init__(client_config)
+    def __init__(self):
+        super(MultiTrove, self).__init__()
+        self.default_executable = 'trove'
         self.prefix_list += ["trove_", "troveclient_"]
 
 
 def main_client():
-    multistack_shell = shell.MultiShell('trove', MultiTrove)
+    multistack_shell = MultiShell(MultiTrove)
     multistack_shell.run_client()

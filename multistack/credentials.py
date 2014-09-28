@@ -17,32 +17,35 @@
 
 import keyring
 
-def password_get(username, parameter):
+def password_get(env, parameter):
     """
     Retrieves a password from the keychain based on the environment and
     configuration parameter pair.
     """
+    username = '%s:%s' % (env, parameter)
     try:
         return keyring.get_password('multistack', username).encode('ascii')
     except:
         return False
 
-def password_set(username, parameter, password):
+def password_set(env, parameter, password):
     """
     Stores a password in a keychain for a particular environment and
     configuration parameter pair.
     """
+    username = '%s:%s' % (env, parameter)
     try:
         keyring.set_password('multistack', username, password)
         return True
     except:
         return False
 
-def password_delete(username, parameter):
+def password_delete(env, parameter):
     """
     Deletes a password from the keychain for a particular environment and
     configuration parameter pair.
     """
+    username = '%s:%s' % (env, parameter)
     try:
         keyring.delete_password('multistack', username)
         return True

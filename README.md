@@ -9,7 +9,7 @@ MultiStack is a rewrite of [supernova](https://github.com/major/supernova) which
 
 ### Migrating from supernova
 
-Migrating to MultiStack from supernova is fairly easy in most cases. At the most basic level, all you need to do is rename your '.supernova' configuration file to '.multistack'. The only caveat is that some of the configuration items might need to be renamed to support all the clients. For example, a bunch of the original environment variables for nova client began with 'NOVA_'. These variables will still work when running 'multinova', however none of the other client wrappers will read these settings. Global configuration that should be passed to all of the clients should began with 'OS_', while specific configuration that should be read only for a specific client should began with the client's name (so 'NOVA_', for example). You will also need to setup any values you have stored in keyring for MultiStack since it uses a different entry in keyring than supernova.
+Migrating to MultiStack from supernova is fairly easy in most cases. At the most basic level, all you need to do is rename your '.supernova' configuration file to '.multistack'. The only caveat is that some of the configuration items might need to be renamed to support all the clients. For example, a bunch of the original environment variables for nova client began with 'NOVA_'. These variables will still work when running 'multinova', however none of the other client wrappers will read these settings. Global configuration that should be passed to all of the clients should began with 'OS_', while specific configuration that should be read only for a specific client should began with the client's name (so 'NOVA_', for example). Grouping is handled differently in MultiStack than supernova, more information on that aspect later on. You will also need to setup any values you have stored in keyring for MultiStack since it uses a different entry in keyring than supernova.
 
 ### Installation
 
@@ -25,49 +25,61 @@ You will also need to ensure that you have the clients that you're wanting Multi
 
 ### Configuration
 
-For MultiStack to work properly, each environment must be defined in `~/.multistack` (a file in your user's home directory).  The data in the file is exactly the same as the environment variables which you would normally use when running the stand-alone client for your service. Global configuration that should be passed to all of the clients should began with 'OS_', while specific configuration that should be read only for a specific client should began with the client's name (so 'NOVA_', for example).
+The following locations are valid configuration files for MultiStack.
 
-Here's an example of how to use MultiStack with the [Rackspace Cloud](http://www.rackspace.com/cloud/servers/) in different datacenters (credit for this goes [here](http://blog.chmouel.com/2013/09/27/how-to-access-rackspace-cloud-with-latest-swiftclient-novaclient/)):
+* ${XDG_CONFIG_HOME_}/multistack
+* ~/.multistack
+* ./.multistack
 
-    [iad]
-    OS_AUTH_URL=https://identity.api.rackspacecloud.com/v2.0/
-    OS_REGION_NAME=IAD
-    OS_TENANT_NAME=" "
-    OS_USERNAME=your_rackspace_cloud_username
-    OS_PASSWORD=your_rackspace_cloud_password(not API key)
+For MultiStack to work properly, each environment must be defined in the configuration file.  The data in the file is exactly the same as the environment variables which you would normally use when running the stand-alone client for your service. Global configuration that should be passed to all of the clients should began with 'OS_', while specific configuration that should be read only for a specific client should began with the client's name (so 'NOVA_', for example).
+
+Here's an example of how to use MultiStack with the [Rackspace Cloud](http://www.rackspace.com/cloud/servers/) in different datacenters:
+
+    [dfw]
+    OS_AUTH_URL = https://identity.api.rackspacecloud.com/v2.0/
+    OS_REGION_NAME = DFW
+    OS_USERNAME = your_rackspace_cloud_username
+    OS_PASSWORD = your_rackspace_cloud_password(not API key)
+    OS_TENANT_ID = your_rackspace_cloud_tenant_id
+    OS_IMAGE_API_VERSION = 2
+    TROVE_SERVICE_TYPE = "rax:database"
 
     [ord]
-    OS_AUTH_URL=https://identity.api.rackspacecloud.com/v2.0/
-    OS_REGION_NAME=ORD
-    OS_TENANT_NAME=" "
-    OS_USERNAME=your_rackspace_cloud_username
-    OS_PASSWORD=your_rackspace_cloud_password(not API key)
+    OS_AUTH_URL = https://identity.api.rackspacecloud.com/v2.0/
+    OS_REGION_NAME = ORD
+    OS_USERNAME = your_rackspace_cloud_username
+    OS_PASSWORD = your_rackspace_cloud_password(not API key)
+    OS_TENANT_ID = your_rackspace_cloud_tenant_id
+    OS_IMAGE_API_VERSION = 2
+    TROVE_SERVICE_TYPE = "rax:database"
 
 ### Client Compatibility
 
-Each client that MultiStack is compatible with has two executables that the setup.py script installs, one for running the client and one for modifying the keyring settings. In all actuality, the keyring executable is pretty much identical for all the different clients and a change made with one will be reflected for all of them. Below is a list of the clients that are currently supported. I have not tested all of them since I do not have a full blown OpenStack environment to play around with.
+Each client that MultiStack is compatible with has an executable that the setup.py script installs. MultiStack also installs an executable to work with the keyring called multistack-keyring. Below is a list of the clients that are currently supported. I have not tested all of them since I do not have a full blown OpenStack environment to play around with.
 
-Client     | MultiStack client and keyring app        | Tested?
+Client     | MultiStack client                        | Tested?
 -----------|------------------------------------------|--------
-ceilometer | multiceilometer, multiceilometer-keyring | no
-heat       | multiheat, multiheat-keyring             | no
-keystone   | multikeystone, multikeystone-keyring     | yes
-nova       | multinova, multinova-keyring             | yes
-trove      | multitrove, multitrove-keyring           | no
-cinder     | multicinder, multicinder-keyring         | no
-glance     | multiglance, multiglance-keyring         | yes
-neutron    | multineutron, multineutron-keyring       | no
-openstack  | multiopenstack, multiopenstack-keyring   | no
-swift      | multiswift, multiswift-keyring           | yes
+ceilometer | multiceilometer                          | no
+heat       | multiheat                                | yes
+keystone   | multikeystone                            | yes
+nova       | multinova                                | yes
+trove      | multitrove                               | yes
+cinder     | multicinder                              | no
+glance     | multiglance                              | yes
+neutron    | multineutron                             | no
+openstack  | multiopenstack                           | no
+swift      | multiswift                               | yes
 
 ### Usage
 
 The usage for the wrapper and the keyring app are below. For this example, I am using the novaclient wrapper, multinova:
 
-    usage: multinova [-h] [-l] [-x EXECUTABLE] [-d] {}
+    usage: multinova [-h] [-l] [-x EXECUTABLE] [-d]
+                     {mine-dfw,mine-iad,mine-lon,mine-ord,mine-us}
 
     positional arguments:
-      {}                    environment to run the client against.
+      {dfw,iad,lon,ord,raxus}
+                            environment to run the client against.
 
     optional arguments:
       -h, --help            show this help message and exit
@@ -77,7 +89,7 @@ The usage for the wrapper and the keyring app are below. For this example, I am 
       -d, --debug           show client's debug output
 
 
-    usage: multinova-keyring [-h] [-l] (-g | -s | -d) env [env ...] parameter
+    usage: multistack-keyring [-h] [-l] (-g | -s | -d) env [env ...] parameter
 
     positional arguments:
       env           environment to set parameter in
@@ -110,6 +122,23 @@ You may optionally pass `--debug` as the first argument (before the environment 
 
 As before, any text after the environment argument is passed directly to the client.
 
+##### Specifying alternative executables
+
+There are two ways to override the executable used when running MultiStack:
+
+**1)** Passing '-x' or '--executable' to the client at runtime followed by the executable to be used, like so:
+
+    multinova -x my_custom_nova_build ord list
+
+**2)** Specifying it in the configuration section for a given environment in your MultiStack configuration. This works on a per-service basis, like so:
+
+    [dfw]
+    OS_AUTH_URL = https://identity.api.rackspacecloud.com/v2.0/
+    OS_REGION_NAME = DFW
+    MULTISTACK_SWIFT_EXECUTABLE = myswift
+
+With this configuration present, using multiswift against the dfw environment will always use myswift as the executable. All other environments will not be affected.
+
 ##### Listing your configured environments
 
 You can list all of your configured environments by using the `--list` argument on either the keyring app or the client wrapper.
@@ -122,23 +151,23 @@ Due to security policies at certain companies or due to general paranoia, some u
 
 To get started, you'll need to choose an environment and a configuration option.  Here's an example of some data you might not want to keep in plain text:
 
-    multinova-keyring --set iad OS_PASSWORD
+    multistack-keyring --set iad OS_PASSWORD
 
 **TIP**: If you need to use the same data for multiple environments, you can use a global credential item very easily:
 
-    multinova-keyring --set global MyCompanySSO
+    multistack-keyring --set global MyCompanySSO
 
 Alternatively, you may specify multiple environments:
 
-    multinova-keyring --set iad ord OS_PASSWORD
+    multistack-keyring --set iad ord OS_PASSWORD
 
 Once it's stored, you can test a retrieval:
 
     # Normal, per-environment storage
-    multinova-keyring --get production OS_PASSWORD
+    multistack-keyring --get production OS_PASSWORD
 
     # Global storage
-    multinova-keyring --get global MyCompanySSO
+    multistack-keyring --get global MyCompanySSO
 
 You'll need to confirm that you want the data from your keychain displayed in plain text (to hopefully thwart shoulder surfers).
 
@@ -154,7 +183,32 @@ Once you've stored your sensitive data, simply adjust your MultiStack configurat
 
 When MultiStack reads your configuration file and spots a value of `USE_KEYRING`, it will look for credentials stored under `OS_PASSWORD` for that environment automatically.  If your keyring doesn't have a corresponding credential, you'll get an exception.
 
-#### A brief note about environment variables
+### Working with groups
+
+MultiStack supports grouping environments into logical entities which allows you to run a command against multiple environments simultaneously. For example, I have my Rackspace regions grouped like so (some fields are omitted):
+
+    [raxus]
+    MULTISTACK_GROUP = dfw,ord,iad
+
+    [dfw]
+    OS_REGION_NAME = DFW
+    TROVE_SERVICE_TYPE = "rax:database"
+
+    [ord]
+    OS_REGION_NAME = ORD
+    TROVE_SERVICE_TYPE = "rax:database"
+
+    [iad]
+    OS_REGION_NAME = IAD
+    TROVE_SERVICE_TYPE = "rax:database"
+
+With this, I can issue commands to all three environments simultaneously like so:
+
+    multitrove raxus list
+
+At the moment MultiStack does not support nested groups (and may never will). An environment will be identified as a group by MultiStack if the option 'MULTISTACK_GROUP' exists in its section. If this option exists, all other options in that section are ignored.
+
+### A brief note about environment variables
 
 MultiStack will only replace and/or append environment variables to the already present variables for the duration of the client execution. If you have `OS_USERNAME` set outside the script, it won't be used in the script since the script will pull data from `~/.multistack` and use it to run the client. In addition, any variables which are set prior to running MultiStack will be left unaltered when the script exits.
 

@@ -15,6 +15,7 @@
 #   limitations under the License.
 #
 
+from __future__ import absolute_import
 from __future__ import print_function
 
 import getpass
@@ -28,22 +29,14 @@ from . import credentials
 
 class MultiShell(object):
 
-    def __init__(self, executable, multiclient):
-        self.executable = executable
-        self.client_config = config.load_multistack_config()
-        self.multiclient = multiclient(self.client_config)
+    def __init__(self, multiclient):
+        self.multiclient = multiclient()
 
-    def set_client_env(self, new_env):
-        try:
-            self.multiclient.client_env = new_env
-        except Exception as e:
-            utils.print_error(e)
-
-    def check_environment_presets(self, prefix_list):
+    def check_environment_presets(self):
         """
         Checks for environment variables that can cause problems with multistack
         """
-        prefix_tuple = tuple([x.upper() for x in prefix_list])
+        prefix_tuple = tuple([x.upper() for x in self.multiclient.prefix_list])
         presets = [x for x in os.environ.copy().keys() if x.startswith(
             prefix_tuple)]
         if len(presets) > 0:
@@ -51,19 +44,19 @@ class MultiShell(object):
                   "cause conflicts:", title='Warning', exit=False)
             for preset in presets:
                 print("  - %s" % preset)
-            print()
 
     def run_client(self):
-        self.check_environment_presets(self.multiclient.prefix_list)
+        self.check_environment_presets()
+        valid_envs = sorted(self.multiclient.available_envs)
         self.parser = argparse.ArgumentParser()
         self.parser.add_argument('-l', '--list', action=utils._ListAction,
                                  dest='listenvs',
-                                 client_config=self.client_config,
+                                 client_config=self.multiclient.client_config,
                                  help='list all configured environments')
-        valid_envs = sorted(self.client_config.sections())
-        self.parser.add_argument('-x', '--executable', default=self.executable,
+        self.parser.add_argument('-x', '--executable',
                                  help='command to run instead of '
-                                      '%s' % self.executable)
+                                      '%s' %
+                                      self.multiclient.default_executable)
         self.parser.add_argument('-d', '--debug', action='store_true',
                                  help='show client\'s debug output')
         self.parser.add_argument('env',
@@ -73,19 +66,14 @@ class MultiShell(object):
         if not client_args:
             error = 'No arguments were provided to pass along to the client.'
             utils.print_error(error, title='Missing client arguments')
+        try:
+            self.multiclient.client_env = multistack_args.env
+            returncode = self.multiclient.run_client(client_args,
+                                                     multistack_args)
+            sys.exit(returncode)
+        except AttributeError as e:
+            utils.print_error(e)
 
-        if multistack_args.env in self.client_config.sections():
-            self.set_client_env(multistack_args.env)
-            try:
-                returncode = self.multiclient.run_client(client_args,
-                                                         multistack_args)
-                sys.exit(returncode)
-            except Exception as e:
-                utils.print_error(e)
-        else:
-            error = ('Environment \'%s\' not in multistack configuration '
-                     'file' % multistack_args.env)
-            utils.print_error(error, title='Missing environment')
 
 class MultiKeyringShell(object):
 
@@ -93,11 +81,12 @@ class MultiKeyringShell(object):
         self.client_config = config.load_multistack_config()
 
     def get_password(self, parameter, env_list):
+        parameter = parameter.upper()
         utils.print_error("""
 If this operation is successful, the %s credentials stored
 for the following environments will be displayed in your terminal as plain text.
 """ % parameter, title='Warning', exit=False)
-        print('  - Environments : %s' % '\n                    '.join(env_list))
+        print('  - Environments : %s' % '\n                   '.join(env_list))
         print('  - Parameter    : %s' % parameter)
         print('\nIf you really want to proceed, type yes and press enter:')
         try:
@@ -112,17 +101,16 @@ for the following environments will be displayed in your terminal as plain text.
             error = 'Your keyring was not read or altered.'
             utils.print_error(error, title='Canceled')
         print()
-        for environment in env_list:
-            username = '%s:%s' % (environment, parameter)
+        for env in env_list:
             try:
-                password = credentials.password_get(username, parameter)
+                password = credentials.password_get(env, parameter)
             except:
                 password = None
             if password:
-                msg = '%s->%s: %s' % (environment, parameter, password)
+                msg = '%s->%s: %s' % (env, parameter, password.decode('utf-8'))
                 utils.print_notice(msg, title='Success')
             else:
-                error = '%s->%s' % (environment, parameter)
+                error = '%s->%s' % (env, parameter)
                 utils.print_error(error, title='Failed', exit=False)
         print
         utils.print_notice("""
@@ -131,9 +119,10 @@ are likely no credentials stored for that environment/parameter combination.
 """, title='Complete')
 
     def delete_password(self, parameter, env_list):
+        parameter = parameter.upper()
         utils.print_notice('Preparing to delete a password in the keyring '
                            'for:', title='Keyring operation')
-        print('  - Environments : %s' % '\n                    '.join(env_list))
+        print('  - Environments : %s' % '\n                   '.join(env_list))
         print('  - Parameter    : %s' % parameter)
         print('\nIf you really want to proceed, type yes and press enter:')
         try:
@@ -148,18 +137,16 @@ are likely no credentials stored for that environment/parameter combination.
             error = 'Your keyring was not read or altered.'
             utils.print_error(error, title='Canceled')
         print()
-        for environment in env_list:
-            username = '%s:%s' % (environment, parameter)
+        for env in env_list:
             try:
-                delete_ok = credentials.password_delete(username,
-                                                             parameter)
+                delete_ok = credentials.password_delete(env, parameter)
             except:
                 delete_ok = False
             if delete_ok:
-                msg = '%s->%s' % (environment, parameter)
+                msg = '%s->%s' % (env, parameter)
                 utils.print_notice(msg, title='Success')
             else:
-                error = '%s->%s' % (environment, parameter)
+                error = '%s->%s' % (env, parameter)
                 utils.print_error(error, title='Failed', exit=False)
         print()
         utils.print_notice("""
@@ -168,9 +155,10 @@ should check your keyring configuration.
 """, title='Complete')
 
     def set_password(self, parameter, env_list):
+        parameter = parameter.upper()
         utils.print_notice('Preparing to set a password in the keyring for:',
                            title='Keyring operation')
-        print('  - Environments : %s' % '\n                    '.join(env_list))
+        print('  - Environments : %s' % '\n                   '.join(env_list))
         print('  - Parameter    : %s' % parameter)
         print('\nIf this is correct, enter the corresponding credential ' \
               'to store in \nyour keyring or press CTRL-D to abort:')
@@ -185,19 +173,17 @@ should check your keyring configuration.
         if not password or len(password) < 1:
             utils.print_error('Your keyring was not read or altered.',
                               title='Canceled')
-        for environment in env_list:
+        for env in env_list:
             # Try to store the password
-            username = '%s:%s' % (environment, parameter)
             try:
-                store_ok = credentials.password_set(username, parameter,
-                                                         password)
+                store_ok = credentials.password_set(env, parameter, password)
             except:
                 store_ok = False
             if store_ok:
-                msg = '%s->%s' % (environment, parameter)
+                msg = '%s->%s' % (env, parameter)
                 utils.print_notice(msg, title='Success')
             else:
-                error = '%s->%s' % (environment, parameter)
+                error = '%s->%s' % (env, parameter)
                 utils.print_error(error, title='Failed', exit=False)
         print()
         utils.print_notice("""

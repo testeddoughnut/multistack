@@ -15,18 +15,20 @@
 #   limitations under the License.
 #
 
+from __future__ import absolute_import
 
-from multistack import client
-from multistack import shell
+from ..client import MultiClient
+from ..shell import MultiShell
 
 
-class MultiNeutron(client.MultiClient):
+class MultiNeutron(MultiClient):
 
-    def __init__(self, client_config):
-        super(MultiNeutron, self).__init__(client_config)
+    def __init__(self):
+        super(MultiNeutron, self).__init__()
+        self.default_executable = 'neutron'
         self.prefix_list += ["neutron_", "neutronclient_"]
 
 
 def main_client():
-    multistack_shell = shell.MultiShell('neutron', MultiNeutron)
+    multistack_shell = MultiShell(MultiNeutron)
     multistack_shell.run_client()

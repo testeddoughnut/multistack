@@ -15,18 +15,20 @@
 #   limitations under the License.
 #
 
+from __future__ import absolute_import
 
-from multistack import client
-from multistack import shell
+from ..client import MultiClient
+from ..shell import MultiShell
 
 
-class MultiCinder(client.MultiClient):
+class MultiCinder(MultiClient):
 
-    def __init__(self, client_config):
-        super(MultiCinder, self).__init__(client_config)
+    def __init__(self):
+        super(MultiCinder, self).__init__()
+        self.default_executable = 'cinder'
         self.prefix_list += ["cinder_", "cinderclient_"]
 
 
 def main_client():
-    multistack_shell = shell.MultiShell('cinder', MultiCinder)
+    multistack_shell = MultiShell(MultiCinder)
     multistack_shell.run_client()

@@ -15,18 +15,20 @@
 #   limitations under the License.
 #
 
+from __future__ import absolute_import
 
-from multistack import client
-from multistack import shell
+from ..client import MultiClient
+from ..shell import MultiShell
 
 
-class MultiHeat(client.MultiClient):
+class MultiHeat(MultiClient):
 
-    def __init__(self, client_config):
-        super(MultiHeat, self).__init__(client_config)
+    def __init__(self):
+        super(MultiHeat, self).__init__()
+        self.default_executable = 'heat'
         self.prefix_list += ["heat_", "heatclient_"]
 
 
 def main_client():
-    multistack_shell = shell.MultiShell('heat', MultiHeat)
+    multistack_shell = MultiShell(MultiHeat)
     multistack_shell.run_client()
