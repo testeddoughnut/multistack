@@ -82,8 +82,8 @@ class MultiKeyringShell(object):
 
     def get_password(self, parameter, env_list):
         parameter = parameter.upper()
-        utils.print_error("""
-If this operation is successful, the %s credentials stored
+        utils.print_error(
+"""If this operation is successful, the %s credentials stored
 for the following environments will be displayed in your terminal as plain text.
 """ % parameter, title='Warning', exit=False)
         print('  - Environments : %s' % '\n                   '.join(env_list))
@@ -113,8 +113,8 @@ for the following environments will be displayed in your terminal as plain text.
                 error = '%s->%s' % (env, parameter)
                 utils.print_error(error, title='Failed', exit=False)
         print
-        utils.print_notice("""
-If you encountered a failure retrieving the credentials then there
+        utils.print_notice(
+"""If you encountered a failure retrieving the credentials then there
 are likely no credentials stored for that environment/parameter combination.
 """, title='Complete')
 
@@ -149,8 +149,8 @@ are likely no credentials stored for that environment/parameter combination.
                 error = '%s->%s' % (env, parameter)
                 utils.print_error(error, title='Failed', exit=False)
         print()
-        utils.print_notice("""
-If you encountered a failure deleting any of the credentials then you
+        utils.print_notice(
+"""If you encountered a failure deleting any of the credentials then you
 should check your keyring configuration.
 """, title='Complete')
 
@@ -186,8 +186,8 @@ should check your keyring configuration.
                 error = '%s->%s' % (env, parameter)
                 utils.print_error(error, title='Failed', exit=False)
         print()
-        utils.print_notice("""
-If you encountered a failure storing any of the credentials then you
+        utils.print_notice(
+"""If you encountered a failure storing any of the credentials then you
 should check your keyring configuration.
 """, title='Complete')
 
