@@ -18,8 +18,8 @@
 from __future__ import absolute_import
 from __future__ import print_function
 
-import getpass
 import argparse
+import getpass
 import os
 import sys
 from . import utils
@@ -41,7 +41,7 @@ class MultiShell(object):
             prefix_tuple)]
         if len(presets) > 0:
             utils.print_error("Found existing environment variables that may "
-                  "cause conflicts:", title='Warning', exit=False)
+                              "cause conflicts:", title='Warning', exit=False)
             for preset in presets:
                 print("  - %s" % preset)
 
@@ -83,7 +83,7 @@ class MultiKeyringShell(object):
     def get_password(self, parameter, env_list):
         parameter = parameter.upper()
         utils.print_error(
-"""If this operation is successful, the %s credentials stored
+            """If this operation is successful, the %s credentials stored
 for the following environments will be displayed in your terminal as plain text.
 """ % parameter, title='Warning', exit=False)
         print('  - Environments : %s' % '\n                   '.join(env_list))
@@ -114,7 +114,7 @@ for the following environments will be displayed in your terminal as plain text.
                 utils.print_error(error, title='Failed', exit=False)
         print
         utils.print_notice(
-"""If you encountered a failure retrieving the credentials then there
+            """If you encountered a failure getting your credentials then there
 are likely no credentials stored for that environment/parameter combination.
 """, title='Complete')
 
@@ -150,7 +150,7 @@ are likely no credentials stored for that environment/parameter combination.
                 utils.print_error(error, title='Failed', exit=False)
         print()
         utils.print_notice(
-"""If you encountered a failure deleting any of the credentials then you
+            """If you encountered a failure deleting your credentials then you
 should check your keyring configuration.
 """, title='Complete')
 
@@ -160,7 +160,7 @@ should check your keyring configuration.
                            title='Keyring operation')
         print('  - Environments : %s' % '\n                   '.join(env_list))
         print('  - Parameter    : %s' % parameter)
-        print('\nIf this is correct, enter the corresponding credential ' \
+        print('\nIf this is correct, enter the corresponding credential '
               'to store in \nyour keyring or press CTRL-D to abort:')
         # Prompt for a password and catch a CTRL-D
         try:
@@ -187,7 +187,7 @@ should check your keyring configuration.
                 utils.print_error(error, title='Failed', exit=False)
         print()
         utils.print_notice(
-"""If you encountered a failure storing any of the credentials then you
+            """If you encountered a failure setting your credentials then you
 should check your keyring configuration.
 """, title='Complete')
 
@@ -219,6 +219,7 @@ should check your keyring configuration.
             self.set_password(args.parameter, sorted(args.env))
         if args.delete_password:
             self.delete_password(args.parameter, sorted(args.env))
+
 
 def main_keyring():
     multikeyring_shell = MultiKeyringShell()

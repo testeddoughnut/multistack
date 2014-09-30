@@ -17,6 +17,7 @@
 
 import keyring
 
+
 def password_get(env, parameter):
     """
     Retrieves a password from the keychain based on the environment and
@@ -27,6 +28,7 @@ def password_get(env, parameter):
         return keyring.get_password('multistack', username).encode('ascii')
     except:
         return False
+
 
 def password_set(env, parameter, password):
     """
@@ -39,6 +41,7 @@ def password_set(env, parameter, password):
         return True
     except:
         return False
+
 
 def password_delete(env, parameter):
     """

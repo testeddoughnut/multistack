@@ -24,6 +24,7 @@ except:
 
 import os
 
+
 def load_multistack_config():
     """
     Pulls the multistack configuration file and reads it
@@ -37,8 +38,10 @@ def load_multistack_config():
     multistack_config.read(possible_configs)
     return multistack_config
 
+
 def is_env_group(client_config, env):
     return client_config.has_option(env, 'MULTISTACK_GROUP')
+
 
 def get_group_members(client_config, env):
     return client_config.get(env, 'MULTISTACK_GROUP').split(',')

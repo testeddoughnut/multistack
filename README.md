@@ -210,8 +210,8 @@ At the moment MultiStack does not support nested groups (and may never will). An
 
 ### A brief note about environment variables
 
-MultiStack will only replace and/or append environment variables to the already present variables for the duration of the client execution. If you have `OS_USERNAME` set outside the script, it won't be used in the script since the script will pull data from `~/.multistack` and use it to run the client. In addition, any variables which are set prior to running MultiStack will be left unaltered when the script exits.
+MultiStack will only replace and/or append environment variables to the already present variables for the duration of the client execution. If you have `OS_USERNAME` set outside the script, it won't be used in the script since the script will pull data from the configuration file to run the client. In addition, any variables which are set prior to running MultiStack will be left unaltered when the script exits.
 
 ### Adding support for additional clients
 
-MultiStack is written to be easily extended to support additional clients as they come out. If you are interested in adding support for a new client, take a look at the files under one of the client directories (like `nova` for example).
+MultiStack is written to be easily extended to support additional clients as they come out. If you are interested in adding support for a new client, take a look at the files under the clients directory.

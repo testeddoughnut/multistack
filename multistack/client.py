@@ -25,6 +25,7 @@ from . import config
 from . import credentials
 from . import utils
 
+
 class MultiClient(object):
 
     def __init__(self):
@@ -50,7 +51,7 @@ class MultiClient(object):
         new_run_config = []
         if new_env not in self.available_envs:
             msg = ('Environment \'%s\' is not in the multistack configuration '
-                     'file' % new_env)
+                   'file' % new_env)
             raise AttributeError(msg)
         if config.is_env_group(self.client_config, new_env):
             group_members = config.get_group_members(self.client_config,
@@ -106,8 +107,9 @@ class MultiClient(object):
             # Make sure we got something valid from the configuration file or
             # the keyring
             if not credential:
-                msg = "Attempted to retrieve a credential for \'%s\' but " \
-                      "couldn't find it within the keyring." % username
+                msg = ("Attempted to retrieve a credential for \'%s\'->\'%s\' "
+                       "but couldn't find it within the keyring." % (env,
+                                                                     param))
                 raise AttributeError(msg)
 
             creds.append((param, credential))
@@ -128,7 +130,7 @@ class MultiClient(object):
         if env_config.get('MULTISTACK_%s_EXECUTABLE' %
                           self.default_executable.upper()):
             executable = env_config['MULTISTACK_%s_EXECUTABLE' %
-                                  self.default_executable.upper()]
+                                    self.default_executable.upper()]
         else:
             executable = self.default_executable
         return executable
@@ -150,8 +152,8 @@ class MultiClient(object):
             utils.print_notice("Running %s against %s..." % (
                                run_executable, env))
             process = subprocess.Popen([run_executable] + client_args,
-                                 stdout=sys.stdout, stderr=sys.stderr,
-                                 env=env_config)
+                                       stdout=sys.stdout, stderr=sys.stderr,
+                                       env=env_config)
             # Don't exit until we're sure the subprocess has exited
             process.wait()
             # Return the return code of the process
