@@ -44,4 +44,5 @@ def is_env_group(client_config, env):
 
 
 def get_group_members(client_config, env):
-    return client_config.get(env, 'MULTISTACK_GROUP').split(',')
+    members = client_config.get(env, 'MULTISTACK_GROUP').split(',')
+    return list(set(members))  # Remove duplicates

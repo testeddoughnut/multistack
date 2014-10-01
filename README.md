@@ -31,7 +31,12 @@ The following locations are valid configuration files for MultiStack.
 * ~/.multistack
 * ./.multistack
 
-For MultiStack to work properly, each environment must be defined in the configuration file.  The data in the file is exactly the same as the environment variables which you would normally use when running the stand-alone client for your service. Global configuration that should be passed to all of the clients should began with 'OS_', while specific configuration that should be read only for a specific client should began with the client's name (so 'NOVA_', for example).
+For MultiStack to work properly, each environment must be defined in the configuration file.  The data in the file is exactly the same as the environment variables which you would normally use when running the stand-alone client for your service. Global configuration that should be passed to all of the clients should began with 'OS_', while specific configuration that should be read only for a specific client should began with the client's name (so 'NOVA_', for example). The 'MULTISTACK_' prefix is used for configuration to be read by MultiStack. The available options are below:
+
+Option                         | Description
+-------------------------------|---------------------------------------------
+MULTISTACK_GROUP               | Used to make an environment a group
+MULTISTACK_$service_EXECUTABLE | Used to change the binary used for a service
 
 Here's an example of how to use MultiStack with the [Rackspace Cloud](http://www.rackspace.com/cloud/servers/) in different datacenters:
 
@@ -87,6 +92,7 @@ The usage for the wrapper and the keyring app are below. For this example, I am 
       -x EXECUTABLE, --executable EXECUTABLE
                             command to run instead of nova
       -d, --debug           show client's debug output
+      -r, --dryrun          Dry run. Output what would be ran but take no action.
 
 
     usage: multistack-keyring [-h] [-l] (-g | -s | -d) env [env ...] parameter

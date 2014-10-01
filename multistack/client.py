@@ -68,12 +68,10 @@ class MultiClient(object):
                            'groups are unsupported at this time.' % member)
                     raise AttributeError(msg)
                 env_config = self.get_env_config(member)
-                executable = self.get_executable(env_config)
-                new_run_config.append([member, executable, env_config])
+                new_run_config.append([member, env_config])
         else:
             env_config = self.get_env_config(new_env)
-            executable = self.get_executable(env_config)
-            new_run_config.append([new_env, executable, env_config])
+            new_run_config.append([new_env, env_config])
         self.run_config = new_run_config
         self._client_env = new_env
 
@@ -126,9 +124,11 @@ class MultiClient(object):
             env_config[k] = v
         return env_config
 
-    def get_executable(self, env_config):
-        if env_config.get('MULTISTACK_%s_EXECUTABLE' %
-                          self.default_executable.upper()):
+    def get_executable(self, env_config, multistack_args):
+        if multistack_args.executable:
+            executable = multistack_args.executable
+        elif env_config.get('MULTISTACK_%s_EXECUTABLE' %
+                            self.default_executable.upper()):
             executable = env_config['MULTISTACK_%s_EXECUTABLE' %
                                     self.default_executable.upper()]
         else:
@@ -143,21 +143,25 @@ class MultiClient(object):
         # Check for a debug override
         if multistack_args.debug:
             client_args.insert(0, '--debug')
-        for env, executable, env_config in self.run_config:
+        for env, env_config in self.run_config:
             # set the executable
-            if multistack_args.executable:
-                run_executable = multistack_args.executable
+            executable = self.get_executable(env_config, multistack_args)
+            if multistack_args.dryrun:
+                msg = "Running %s against %s..." % (executable, env)
+                utils.print_notice(msg, title='DRY RUN')
+                print(' '.join([executable] + client_args))
+                returncode = 0
             else:
-                run_executable = executable
-            utils.print_notice("Running %s against %s..." % (
-                               run_executable, env))
-            process = subprocess.Popen([run_executable] + client_args,
-                                       stdout=sys.stdout, stderr=sys.stderr,
-                                       env=env_config)
-            # Don't exit until we're sure the subprocess has exited
-            process.wait()
-            # Return the return code of the process
-        return process.returncode
+                msg = "Running %s against %s..." % (executable, env)
+                utils.print_notice(msg, title='MULTISTACK')
+                process = subprocess.Popen([executable] + client_args,
+                                           stdout=sys.stdout, stderr=sys.stderr,
+                                           env=env_config)
+                # Don't exit until we're sure the subprocess has exited
+                process.wait()
+                # Return the return code of the process
+                returncode = process.returncode
+        return returncode
 
     def get_client(self, env):
         """

@@ -59,6 +59,9 @@ class MultiShell(object):
                                       self.multiclient.default_executable)
         self.parser.add_argument('-d', '--debug', action='store_true',
                                  help='show client\'s debug output')
+        self.parser.add_argument('-r', '--dryrun', action='store_true',
+                                 help='Dry run. Output what would be ran but '
+                                 'take no action.')
         self.parser.add_argument('env',
                                  help='environment to run the client against.',
                                  choices=valid_envs)
@@ -71,7 +74,7 @@ class MultiShell(object):
             returncode = self.multiclient.run_client(client_args,
                                                      multistack_args)
             sys.exit(returncode)
-        except AttributeError as e:
+        except (AttributeError, OSError) as e:
             utils.print_error(e)
 
 
