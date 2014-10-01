@@ -13,7 +13,11 @@ Migrating to MultiStack from supernova is fairly easy in most cases. At the most
 
 ### Installation
 
-Installation is fairly simple:
+Installation is fairly simple via pip:
+
+    pip install multistack
+
+Or get the latest code from the github repo:
 
     git clone https://github.com/testeddoughnut/multistack.git
     cd multistack
