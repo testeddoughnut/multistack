@@ -74,7 +74,7 @@ class MultiShell(object):
             returncode = self.multiclient.run_client(client_args,
                                                      multistack_args)
             sys.exit(returncode)
-        except (AttributeError, OSError) as e:
+        except AttributeError as e:
             utils.print_error(e)
 
 

@@ -154,13 +154,19 @@ class MultiClient(object):
             else:
                 msg = "Running %s against %s..." % (executable, env)
                 utils.print_notice(msg, title='MULTISTACK')
-                process = subprocess.Popen([executable] + client_args,
-                                           stdout=sys.stdout, stderr=sys.stderr,
-                                           env=env_config)
-                # Don't exit until we're sure the subprocess has exited
-                process.wait()
-                # Return the return code of the process
-                returncode = process.returncode
+                try:
+                    process = subprocess.Popen([executable] + client_args,
+                                               stdout=sys.stdout,
+                                               stderr=sys.stderr,
+                                               env=env_config)
+                    # Don't exit until we're sure the subprocess has exited
+                    process.wait()
+                    # Return the return code of the process
+                    returncode = process.returncode
+                except OSError as e:
+                    # Allow the loop to continue if the executable isn't found
+                    utils.print_error(e, exit=False)
+                    returncode = 1
         return returncode
 
     def get_client(self, env):

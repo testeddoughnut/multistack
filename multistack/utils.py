@@ -60,7 +60,7 @@ def rwrap(some_string):
 def print_error(error, title=None, exit=True):
     if not title:
         title = "Something broke"
-    print("[%s] %s" % (rwrap(title), error))
+    print("[%s] %s" % (rwrap(title), error), file=sys.stderr)
     if exit:
         sys.exit(1)
 
