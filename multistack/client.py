@@ -119,7 +119,6 @@ class MultiClient(object):
         Appends new variables to the current shell environment temporarily.
         """
         env_config = os.environ.copy()
-        # env_config = {}
         for k, v in self.prep_creds(env):
             env_config[k] = v
         return env_config
@@ -169,7 +168,7 @@ class MultiClient(object):
                     returncode = 1
         return returncode
 
-    def get_client(self, env):
+    def get_client(self):
         """
         Returns python client object authenticated with multistack config.
         """

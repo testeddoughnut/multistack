@@ -84,7 +84,6 @@ class MultiKeyringShell(object):
         self.client_config = config.load_multistack_config()
 
     def get_password(self, parameter, env_list):
-        parameter = parameter.upper()
         utils.print_error(
             """If this operation is successful, the %s credentials stored
 for the following environments will be displayed in your terminal as plain text.
@@ -122,7 +121,6 @@ are likely no credentials stored for that environment/parameter combination.
 """, title='Complete')
 
     def delete_password(self, parameter, env_list):
-        parameter = parameter.upper()
         utils.print_notice('Preparing to delete a password in the keyring '
                            'for:', title='Keyring operation')
         print('  - Environments : %s' % '\n                   '.join(env_list))
@@ -158,7 +156,6 @@ should check your keyring configuration.
 """, title='Complete')
 
     def set_password(self, parameter, env_list):
-        parameter = parameter.upper()
         utils.print_notice('Preparing to set a password in the keyring for:',
                            title='Keyring operation')
         print('  - Environments : %s' % '\n                   '.join(env_list))
