@@ -78,6 +78,7 @@ glance     | multiglance                              | yes
 neutron    | multineutron                             | no
 openstack  | multiopenstack                           | no
 swift      | multiswift                               | yes
+solum      | multisolum                               | no
 
 ### Usage
 

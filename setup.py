@@ -42,6 +42,7 @@ setup(
             'multinova = multistack.clients.nova:main_client',
             'multiopenstack = multistack.clients.openstack:main_client',
             'multiswift = multistack.clients.swift:main_client',
-            'multitrove = multistack.clients.trove:main_client'],
+            'multitrove = multistack.clients.trove:main_client',
+            'multisolum = multistack.clients.solum:main_client'],
         },
     )
