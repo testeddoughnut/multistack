@@ -24,7 +24,7 @@ def read_file(file_name):
 
 setuptools.setup(
     name='multistack',
-    version='0.4.0',
+    version='0.4.1',
     author='M. David Bennett',
     author_email='mdavidbennett@syntheticworks.com',
     description='Universal wrapper for the various OpenStack client software '
