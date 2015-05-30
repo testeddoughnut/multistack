@@ -16,20 +16,35 @@
 #
 
 
-from setuptools import setup, find_packages
+import os
+import setuptools
 
+def read_file(file_name):
+    return open(os.path.join(os.path.dirname(__file__), file_name)).read()
 
-setup(
+setuptools.setup(
     name='multistack',
-    version='0.3.0',
+    version='0.4.0',
     author='M. David Bennett',
     author_email='mdavidbennett@syntheticworks.com',
     description='Universal wrapper for the various OpenStack client software '
                 'with support for multiple environments.',
+    long_description=read_file("README.md"),
+    license="Apache License, Version 2.0",
     install_requires=['keyring'],
     url='https://github.com/testeddoughnut/multistack',
     download_url = 'https://github.com/testeddoughnut/multistack/releases/latest',
-    packages=find_packages(),
+    classifiers=[
+        "Development Status :: 5 - Production/Stable",
+        "Environment :: Console",
+        "Intended Audience :: Developers",
+        "Intended Audience :: Information Technology",
+        "License :: OSI Approved :: Apache Software License",
+        "Operating System :: OS Independent",
+        "Environment :: OpenStack",
+        "Programming Language :: Python"
+    ],
+    packages=setuptools.find_packages(exclude=['tests', 'tests.*', 'test_*']),
     entry_points={
         'console_scripts': [
             'multistack-keyring = multistack.shell:main_keyring',
